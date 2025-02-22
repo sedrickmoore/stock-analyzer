@@ -1,6 +1,7 @@
 import yfinance as yf
 import pandas as pd
 import os
+import argparse
 
 # Get past stock price data
 def get_stock(symbol, period="1mo", interval="1d"):
@@ -29,14 +30,19 @@ def load_from_csv(symbol):
     return None
 
 if __name__ == "__main__":
-    symbol = input("Enter stock symbol: ").upper()
-    data = load_from_csv(symbol)
+    parser = argparse.ArgumentParser(description="Retrieve and analyze stock data.")
+    parser.add_argument("symbols", nargs="+", help="Stock ticker(s) to analyze")
+    args = parser.parse_args()
 
-    if data is None:
-        data = get_stock(symbol)
+    for symbol in args.symbols:
+        symbol = symbol.upper()
+        data = load_from_csv(symbol)
+
+        if data is None:
+            data = get_stock(symbol)
+            if data is not None:
+                save_to_csv(data, symbol)
+
         if data is not None:
-            save_to_csv(data, symbol)
-
-    if data is not None:
-        print("\n Recent stock data:")
-        print(data.tail())
+            print(f"\nRecent stock data for {symbol}:")
+            print(data.tail())
